@@ -7,7 +7,6 @@ PORT = 55555
 
 
 def listen_to_server(sock):
-    """Continuously read and print messages from server."""
     while True:
         try:
             data = sock.recv(1024)
@@ -21,10 +20,9 @@ def listen_to_server(sock):
 
 
 def send_to_server(sock):
-    """Continuously send user input to server."""
     while True:
         try:
-            msg = sys.stdin.readline()
+            msg = input()
             if msg:
                 sock.sendall(msg.encode())
         except:

@@ -1,13 +1,14 @@
 
 import socket
 import threading
+import sys
 from db import init_db, create_account, check_login, init_chat_db, save_message
 from datetime import datetime
 
 HOST = "127.0.0.1"
 PORT = 55555
 
-clients = {}  # username  conn
+clients = {} #username: conn
 
 
 def broadcast(message, sender_username=None):
@@ -95,7 +96,7 @@ def main():
             threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
 
     except KeyboardInterrupt:
-        print("Shutting down server!")
+        print("\nShutting down server!")
 
         for conn in clients.values():
             try:
@@ -103,9 +104,10 @@ def main():
                 conn.close()
             except:
                 pass
-        
+        clients.clear()
         server.close()
         print("Server has closed safely!")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
