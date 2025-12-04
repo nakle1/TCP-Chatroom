@@ -10,52 +10,38 @@ PORT = 55555
 # Global socket reference for signal handler access
 sock = None
 
-# Flag to indicate if we should exit
-should_exit = False
-
 
 def listen_to_server(sock):
     """
     Continuously receive and display messages from the server.
-    
-    Runs in a separate thread to allow simultaneous receiving and sending.
-    Exits gracefully on disconnect or connection errors.
     
     Args:
         sock (socket.socket): Connected socket to the server
     
     Returns:
         None
+
+    Flow:
+        1. Receive data from server
+        2. Decode and print messages
+        3. Handle disconnections and errors gracefully
     """
-    global should_exit
-    
-    while not should_exit:
+    while True:
         try:
             data = sock.recv(1024)
             
-            # Empty data means server closed connection
             if not data:
                 print("\nDisconnected from server.")
-                should_exit = True
                 sys.exit(0)
             
             message = data.decode().rstrip()
             print(message)
-            
-            if any(keyword in message for keyword in [
-                "Username already taken",
-                "Invalid login",
-                "Invalid operation"
-            ]):
-                threading.Timer(1.0, lambda: sys.exit(0)).start()
                 
         except ConnectionResetError:
             print("\nConnection to server lost.")
-            should_exit = True
             sys.exit(0)
         except Exception as e:
-            if not should_exit:
-                print(f"\nConnection error: {e}")
+            print(f"\nConnection error: {e}")
             sys.exit(0)
 
 
@@ -72,26 +58,17 @@ def send_to_server(sock):
     Returns:
         None
     """
-    global should_exit
-    
-    while not should_exit:
+    while True:
         try:
             msg = input()
-            
-            if msg and not should_exit:
+            if msg:
                 sock.sendall((msg + '\n').encode())
-
         except (BrokenPipeError, ConnectionResetError):
-            if not should_exit:
-                print("\nConnection to server lost.")
-            should_exit = True
-            break
-
+            print("\nConnection to server lost.")
+            sys.exit(0)
         except Exception as e:
-            if not should_exit:
-                print(f"\nFailed to send message: {e}")
-            should_exit = True
-            break
+            print(f"\nFailed to send message: {e}")
+            sys.exit(0)
 
 
 def signal_handler(sig, frame):
@@ -107,18 +84,13 @@ def signal_handler(sig, frame):
     Returns:
         None
     """
-    global should_exit
-    should_exit = True
-    
-    print("\n\nDisconnecting from server...")
-    
     if sock:
         try:
             sock.close()
         except Exception:
             pass
     
-    print("Disconnected.")
+    print("\nDisconnected.")
     sys.exit(0)
 
 
@@ -145,12 +117,10 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     try:
-        print(f"Connecting to {HOST}:{PORT}...")
         sock.connect((HOST, PORT))
         print("Connected to server!\n")
     except ConnectionRefusedError:
         print(f"Could not connect to server at {HOST}:{PORT}")
-        print("Is the server running?")
         sys.exit(1)
     except Exception as e:
         print(f"Connection error: {e}")
