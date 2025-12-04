@@ -77,7 +77,7 @@ def hash_pw(password):
 
     Returns: str: The hashed password.
 
-    Encodes the pasword to bytes first before hashing and returns the hexadecimal digest.
+    Encodes the password to bytes first before hashing and returns the hexadecimal digest.
     """
     return hashlib.sha256(password.encode()).hexdigest()
 

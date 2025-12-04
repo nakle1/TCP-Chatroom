@@ -35,10 +35,14 @@ def listen_to_server(sock):
                 sys.exit(0)
             
             message = data.decode().rstrip()
-            print(message)
+            if message:
+                print(message)
                 
         except ConnectionResetError:
             print("\nConnection to server lost.")
+            sys.exit(0)
+        except OSError:
+            print("\nSocket closed.")
             sys.exit(0)
         except Exception as e:
             print(f"\nConnection error: {e}")
@@ -66,6 +70,12 @@ def send_to_server(sock):
         except (BrokenPipeError, ConnectionResetError):
             print("\nConnection to server lost.")
             sys.exit(0)
+        except EOFError:
+            print("\nExiting.")
+            sys.exit(0)
+        except OSError:
+            print("\nSocket closed.")
+            sys.exit(0)
         except Exception as e:
             print(f"\nFailed to send message: {e}")
             sys.exit(0)
@@ -84,6 +94,8 @@ def signal_handler(sig, frame):
     Returns:
         None
     """
+    global sock
+
     if sock:
         try:
             sock.close()
@@ -129,10 +141,14 @@ def main():
     listener_thread = threading.Thread(target=listen_to_server, args=(sock,), daemon=True)
     listener_thread.start()
     
-    send_to_server(sock)
-    
-    if sock:
-        sock.close()
+    try:
+        send_to_server(sock)
+    finally:
+        if sock:
+            try:
+                sock.close()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

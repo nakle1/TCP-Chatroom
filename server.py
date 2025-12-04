@@ -66,6 +66,7 @@ def handle_client(conn, addr):
     4. Enter message loop
     5. Clean up on disconnect
     """
+    username = None
     conn.sendall(b"Welcome to the chatroom!\nDo you want to login (-l) or signup (-s)? ")
 
     choice = conn.recv(1024).decode().strip().lower()
@@ -121,7 +122,7 @@ def handle_client(conn, addr):
         if username in clients:
             del clients[username]
             broadcast(f"{username} has left.")
-            print(f"Disconnected from {addr}", flush=True)
+        print(f"Disconnected from {addr}", flush=True)
         conn.close()
 
 
