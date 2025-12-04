@@ -115,13 +115,13 @@ def handle_client(conn, addr):
             broadcast(f"{username}: {msg}", username)
 
     except Exception as e:
-        print(f"Error handling client {username}: {e}")
+        print(f"Error handling client {username}: {e}", flush=True)
 
     finally:
         if username in clients:
             del clients[username]
             broadcast(f"{username} has left.")
-            print(f"{username} disconnected.")
+            print(f"Disconnected from {addr}", flush=True)
         conn.close()
 
 
