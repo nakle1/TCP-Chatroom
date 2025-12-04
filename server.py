@@ -171,3 +171,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#docker build -t chatroom-server .
+#docker rm chatserver
+#docker run -p 55555:55555 --name chatserver chatroom-server
