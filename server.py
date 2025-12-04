@@ -12,7 +12,7 @@ from db import (
 )
 
 
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 55555
 
 #Dictionary top keep track of connected clients username:connection
